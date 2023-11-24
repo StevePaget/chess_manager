@@ -45,7 +45,7 @@ class PlayerEdit(tk.Frame):
         self.currentPlayer = 0
 
 
-    def load(self):
+    def load(self):     # when the page appears, we might need to refresh our data
         c = self.parent.db.cursor()
         results = c.execute("SELECT * FROM Players")
         self.currentPupils = results.fetchall()
