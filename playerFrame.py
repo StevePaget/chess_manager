@@ -53,6 +53,7 @@ class PlayerEdit(tk.Frame):
             self.playerList.insert(tk.END,str(p[0]).ljust(5," ") + (p[1]+" "+p[2]).ljust(20," ") + p[3])
 
     def selectPlayer(self,e):
+        self.currentPlayer = self.playerList.curselection()[0]
         selectedplayer = self.currentPupils[self.playerList.curselection()[0]]
         self.playerForm.delete(0, tk.END)
         self.playerForm.insert(0,selectedplayer[3])
@@ -64,7 +65,13 @@ class PlayerEdit(tk.Frame):
         self.playerID.insert(0,selectedplayer[0])
 
     def save(self):
-        pass
+        if self.currentPlayer == -1: # new player
+            pass
+        else:
+            # update player
+            c=self.parent.db.cursor()
+            c.execute("UPDATE Players set ")
+
 
 
     def new(self):
