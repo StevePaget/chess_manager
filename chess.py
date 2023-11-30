@@ -18,25 +18,24 @@ class App(tk.Tk):
         self.menuButton = tk.Button(self,text="Menu")
         self.menuButton.grid(row=0, column=0, sticky="NW")
 
-        self.db = sqlite3.connect("chess.db")
+        self.db = sqlite3.connect("chess.sqlite")
 
 
-        self.frames= [PlayerEdit(self) ] # Make instances of all the different screens, and store them in a list
+        self.frames= [PlayerEdit(self)]
 
-        self.demoData() # this creates a single user. This would normally be commented out
+        #self.demoData()
         self.switchScreen(0)
         self.mainloop()
 
     def switchScreen(self,screen):
-        for s in self.frames:  # go through each screen and make it forget its grid position, effectively hiding it
-            s.grid_forget()
-        self.frames[screen].grid(row=2,column=0,sticky="NSEW") # this puts the new screen on the grid, so it is visible
-        self.frames[screen].load()  # because the new screen might need to refresh its data, they all need a load method
+        self.frames[screen].grid(row=2,column=0,sticky="NSEW")
+        self.frames[screen].load()
 
-    def demoData(self):  # this just deletes old data and creates a person, for test purposes. This would not nornally be run
+    def demoData(self):
             c = self.db.cursor()
             c.execute("DELETE from Players")
             c.execute("INSERT INTO Players VALUES (NULL, 'Sally', 'Smith', '07KFR')")
+            c.execute("INSERT INTO Players VALUES (NULL, 'Bob', 'Henderson', '08SAP')")
             self.db.commit()
 
 main = App()

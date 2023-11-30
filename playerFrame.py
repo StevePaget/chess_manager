@@ -39,15 +39,18 @@ class PlayerEdit(tk.Frame):
         saveButton.grid(row=0, column=0, sticky="NW")
         newButton = tk.Button(self.buttonFrame,text="New", command=self.new)
         newButton.grid(row=0, column=1, sticky="NW")
+        delButton = tk.Button(self.buttonFrame,text="Delete", command=self.delete)
+        delButton.grid(row=0, column=2, sticky="NW")
 
         self.rowconfigure(7,weight=1)
         self.playerList.bind("<<ListboxSelect>>", self.selectPlayer)
         self.currentPlayer = 0
 
 
-    def load(self):     # when the page appears, we might need to refresh our data
+    def load(self):
         c = self.parent.db.cursor()
         results = c.execute("SELECT * FROM Players")
+        self.playerList.delete(0,tk.END)
         self.currentPupils = results.fetchall()
         for p in self.currentPupils:
             self.playerList.insert(tk.END,str(p[0]).ljust(5," ") + (p[1]+" "+p[2]).ljust(20," ") + p[3])
@@ -65,14 +68,33 @@ class PlayerEdit(tk.Frame):
         self.playerID.insert(0,selectedplayer[0])
 
     def save(self):
+        c=self.parent.db.cursor()
         if self.currentPlayer == -1: # new player
-            pass
+            c.execute("INSERT INTO Players VALUES(NULL,?,?,?)", (self.playerFname.get(), self.playerSname.get(), self.playerForm.get()))
+            self.parent.db.commit()
         else:
             # update player
-            c=self.parent.db.cursor()
-            c.execute("UPDATE Players set ")
 
+            c.execute("UPDATE Players set firstname = ?, surname = ?, form = ? WHERE id = ?", (self.playerFname.get(), self.playerSname.get(), self.playerForm.get(), self.currentPupils[self.currentPlayer][0]))
+            self.parent.db.commit()
+        self.load()
 
 
     def new(self):
-        pass
+        #clear all the boxes
+        self.playerForm.delete(0, tk.END)
+        self.playerSname.delete(0, tk.END)
+        self.playerFname.delete(0, tk.END)
+        self.playerID.delete(0, tk.END)
+        self.currentPlayer = -1
+
+    def delete(self):
+        # get the current selection
+        self.currentPlayer = self.playerList.curselection()[0]
+        selectedplayer = self.currentPupils[self.playerList.curselection()[0]]
+        # remove it from database and clear the screen
+        c=self.parent.db.cursor()
+        c.execute("DELETE FROM Players WHERE ID = ?", (selectedplayer[0],))
+        self.parent.db.commit()
+        self.load()
+        self.new()
